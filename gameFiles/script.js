@@ -27,9 +27,10 @@ let scoreText;
 let pauseText;
 let gamePaused = false;
 
-let game = new Phaser.Game(config);
+const game = new Phaser.Game(config);
 
-function preload() {
+function preload ()
+{
     this.load.image('sky', '../assets/sky.png');
     this.load.image('ground', '../assets/platform.png');
     this.load.image('star', '../assets/star.png');
@@ -57,8 +58,10 @@ function create() {
     player = this.physics.add.sprite(100, 450, 'dude');
 
     //  Player physics properties. Give the little guy a slight bounce.
-    player.setBounce(0.2);
+    player.setBounce(0);
     player.setCollideWorldBounds(true);
+    player.body.setGravityY(300);
+    this.physics.add.collider(player, platforms);
 
     //  Our player animations, turning, walking left and walking right.
     this.anims.create({
@@ -129,7 +132,8 @@ function update() {
 
         player.anims.play('right', true);
     } else {
-        player.setVelocityX(0);
+
+    player.setVelocityX(0);
 
         player.anims.play('turn');
     }
