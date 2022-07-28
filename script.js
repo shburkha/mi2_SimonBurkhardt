@@ -5,7 +5,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 },
+            gravity: {y: 300},
             debug: false
         }
     },
@@ -24,20 +24,20 @@ let cursors;
 let score = 0;
 let gameOver = false;
 let scoreText;
+let pauseText;
+let gamePaused = false;
 
 const game = new Phaser.Game(config);
 
-function preload ()
-{
+function preload() {
     this.load.image('sky', 'assets/sky.png');
     this.load.image('ground', 'assets/platform.png');
     this.load.image('star', 'assets/star.png');
     this.load.image('bomb', 'assets/bomb.png');
-    this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('dude', 'assets/dude.png', {frameWidth: 32, frameHeight: 48});
 }
 
-function create ()
-{
+function create() {
     //  A simple background for our game
     this.add.image(400, 300, 'sky');
 
@@ -63,20 +63,20 @@ function create ()
     //  Our player animations, turning, walking left and walking right.
     this.anims.create({
         key: 'left',
-        frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+        frames: this.anims.generateFrameNumbers('dude', {start: 0, end: 3}),
         frameRate: 10,
         repeat: -1
     });
 
     this.anims.create({
         key: 'turn',
-        frames: [ { key: 'dude', frame: 4 } ],
+        frames: [{key: 'dude', frame: 4}],
         frameRate: 20
     });
 
     this.anims.create({
         key: 'right',
-        frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+        frames: this.anims.generateFrameNumbers('dude', {start: 5, end: 8}),
         frameRate: 10,
         repeat: -1
     });
@@ -88,7 +88,7 @@ function create ()
     stars = this.physics.add.group({
         key: 'star',
         repeat: 11,
-        setXY: { x: 12, y: 0, stepX: 70 }
+        setXY: {x: 12, y: 0, stepX: 70}
     });
 
     stars.children.iterate(function (child) {
@@ -100,8 +100,9 @@ function create ()
 
     bombs = this.physics.add.group();
 
-    //  The score
-    scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+    //  The score & pause
+    scoreText = this.add.text(16, 16, 'score: 0', {fontSize: '2rem', fill: '#000'});
+    pauseText = this.add.text(680, 16, 'Pause', {fontSize: '2rem', fill: '#000'});
 
     //  Collide the player and the stars with the platforms
     this.physics.add.collider(player, platforms);
@@ -114,48 +115,38 @@ function create ()
     this.physics.add.collider(player, bombs, hitBomb, null, this);
 }
 
-function update ()
-{
-    if (gameOver)
-    {
+function update() {
+    if (gameOver) {
         return;
     }
 
-    if (cursors.left.isDown)
-    {
+    if (cursors.left.isDown) {
         player.setVelocityX(-160);
 
         player.anims.play('left', true);
-    }
-    else if (cursors.right.isDown)
-    {
+    } else if (cursors.right.isDown) {
         player.setVelocityX(160);
 
         player.anims.play('right', true);
-    }
-    else
-    {
+    } else {
         player.setVelocityX(0);
 
         player.anims.play('turn');
     }
 
-    if (cursors.up.isDown && player.body.touching.down)
-    {
+    if (cursors.up.isDown && player.body.touching.down) {
         player.setVelocityY(-330);
     }
 }
 
-function collectStar (player, star)
-{
+function collectStar(player, star) {
     star.disableBody(true, true);
 
     //  Add and update the score
     score += 10;
     scoreText.setText('Score: ' + score);
 
-    if (stars.countActive(true) === 0)
-    {
+    if (stars.countActive(true) === 0) {
         //  A new batch of stars to collect
         stars.children.iterate(function (child) {
 
@@ -174,8 +165,7 @@ function collectStar (player, star)
     }
 }
 
-function hitBomb (player, bomb)
-{
+function hitBomb(player, bomb) {
     this.physics.pause();
 
     player.setTint(0xff0000);
@@ -183,4 +173,16 @@ function hitBomb (player, bomb)
     player.anims.play('turn');
 
     gameOver = true;
+}
+
+function pauseGame() {
+    if (this.gamePaused) {
+        this.gamePaused = false;
+        pauseText.setText('Pause');
+        game.scene.resume('default');
+    } else {
+        this.gamePaused = true;
+        pauseText.setText('Resume');
+        game.scene.pause('default');
+    }
 }
