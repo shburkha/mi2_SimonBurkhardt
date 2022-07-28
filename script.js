@@ -27,7 +27,7 @@ let scoreText;
 let pauseText;
 let gamePaused = false;
 
-const game = new Phaser.Game(config);
+let game = new Phaser.Game(config);
 
 function preload() {
     this.load.image('sky', 'assets/sky.png');
@@ -102,7 +102,7 @@ function create() {
 
     //  The score & pause
     scoreText = this.add.text(16, 16, 'score: 0', {fontSize: '2rem', fill: '#000'});
-    pauseText = this.add.text(680, 16, 'Pause', {fontSize: '2rem', fill: '#000'});
+    pauseText = this.add.button(680, 16, 'Pause', pauseGame ,{fontSize: '2rem', fill: '#000'});
 
     //  Collide the player and the stars with the platforms
     this.physics.add.collider(player, platforms);
@@ -154,9 +154,9 @@ function collectStar(player, star) {
 
         });
 
-        var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+        let x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
 
-        var bomb = bombs.create(x, 16, 'bomb');
+        let bomb = bombs.create(x, 16, 'bomb');
         bomb.setBounce(1);
         bomb.setCollideWorldBounds(true);
         bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
