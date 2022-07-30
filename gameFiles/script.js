@@ -1,7 +1,7 @@
 const config = {
     type: Phaser.AUTO,
     width: 800,
-    height: 600,
+    height: 400,
     physics: {
         default: 'arcade',
         arcade: {
@@ -37,15 +37,15 @@ function create ()
 {
     // adding ground platform to the game
     platforms = this.physics.add.staticGroup();
-    platforms.create(1000, 568, 'ground').setScale(4, 1).refreshBody();
+    platforms.create(1000, 380, 'ground').setScale(4, 1).refreshBody();
 
     // adding player character to the game and physics
-    player = this.physics.add.sprite(100, 450, 'block');
+    player = this.physics.add.sprite(100, 350, 'block');
 
     // player gravity
     player.body.setGravityY(300);
     // player collider with world bounds and ground
-    player.setCollideWorldBounds(true);
+    // player.setCollideWorldBounds(true);
     this.physics.add.collider(player, platforms);
 
     // player block animations
@@ -69,10 +69,12 @@ function update ()
         return;
     }
 
-    if(cursors.up.isDown && player.body.touching.down) {
+    if((cursors.up.isDown || cursors.space.isDown) && player.body.touching.down) {
         player.anims.play('jump');
         player.setVelocityY(-330);
     }
+
+    player.setVelocityX(200);
 
 }
 
