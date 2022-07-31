@@ -16,6 +16,9 @@ const config = {
     }
 };
 
+let esc;
+// needed?
+let setCam = false;
 let player;
 let platforms;
 let cursors;
@@ -35,12 +38,17 @@ function preload ()
 
 function create ()
 {
+    // adding esc as a key
+    esc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+
     // adding ground platform to the game
     platforms = this.physics.add.staticGroup();
     platforms.create(1000, 380, 'ground').setScale(4, 1).refreshBody();
+    // platform to stop block from falling at the end
+    platforms.create(2000, 335, 'ground').setScale(0.002, 10).refreshBody();
 
     // adding player character to the game and physics
-    player = this.physics.add.sprite(100, 350, 'block');
+    player = this.physics.add.sprite(25, 300, 'block');
 
     // player gravity
     player.body.setGravityY(300);
@@ -76,6 +84,18 @@ function update ()
 
     player.setVelocityX(200);
 
+    // make camera follow player
+    // lerpY: 0; doesn't follow jumps // offsetY: 100; fixes position
+    if(player.x > 200) {
+        console.log("playerX: " + player.x);
+        // TODO fix offsetY
+        this.cameras.main.startFollow(player, false, 1, 0, 0, 150);
+    }
+
+    // TODO fix esc pause
+    /*if(esc.isDown) {
+        pauseGame();
+    }*/
 }
 
 function pauseGame() {
