@@ -16,9 +16,9 @@ const config = {
     }
 };
 
+// TODO multiple scenes (start, play, pause)
+
 let esc;
-// needed?
-let setCam = false;
 let player;
 let platforms;
 let cursors;
@@ -34,6 +34,8 @@ function preload ()
     this.load.spritesheet('block', '../assets/block.png', {frameWidth: 50, frameHeight: 50});
     // loading player character
     this.load.image('ground', '../assets/ground.png');
+    // test sound
+    this.load.audio('test', '../assets/miau.mp3');
 }
 
 function create ()
@@ -48,7 +50,7 @@ function create ()
     platforms.create(2000, 335, 'ground').setScale(0.002, 10).refreshBody();
 
     // adding player character to the game and physics
-    player = this.physics.add.sprite(25, 300, 'block');
+    player = this.physics.add.sprite(400, 350, 'block');
 
     // player gravity
     player.body.setGravityY(300);
@@ -69,6 +71,9 @@ function create ()
 
     //  pauseButton
     pauseText = this.add.text(680, 16, 'Pause', {fontSize: '2rem', fill: '#fff'}, pauseGame);
+
+    // camera following character
+    this.cameras.main.startFollow(player, false, 1, 0, 0, 150);
 }
 
 function update ()
@@ -86,11 +91,12 @@ function update ()
 
     // make camera follow player
     // lerpY: 0; doesn't follow jumps // offsetY: 100; fixes position
-    if(player.x > 200) {
+    // make transition smooth
+    /*if(player.x > 200) {
         console.log("playerX: " + player.x);
         // TODO fix offsetY
         this.cameras.main.startFollow(player, false, 1, 0, 0, 150);
-    }
+    }*/
 
     // TODO fix esc pause
     /*if(esc.isDown) {
