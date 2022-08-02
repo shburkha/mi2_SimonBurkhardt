@@ -17,37 +17,54 @@ const config = {
 };
 
 // TODO multiple scenes (start, play, pause)
+// TODO add obstacles
 
 let esc;
 let player;
 let platforms;
+let obstacles;
 let cursors;
 let gameOver = false;
 let pauseText;
 let gamePaused = false;
+let backgroundMusic;
 
 const game = new Phaser.Game(config);
 
 function preload ()
 {
     // loading ground
+    // v1
     this.load.spritesheet('block', '../assets/block.png', {frameWidth: 50, frameHeight: 50});
+    // v2
+    this.load.spritesheet('block', '../assets/blockv2.png', {frameWidth: 50, frameHeight: 50});
+
+
+    // loading obstacles
+    this.load.image('obstacle', '../assets/obstacle.png');
     // loading player character
     this.load.image('ground', '../assets/ground.png');
-    // test sound
-    this.load.audio('test', '../assets/miau.mp3');
+    // background music
+    this.load.audio('music', '../assets/Halvorsen - Wouldn\'t Change It [NCS Release].mp3');
 }
 
 function create ()
 {
+    backgroundMusic = this.sound.add('music');
+    backgroundMusic.play();
+
     // adding esc as a key
     esc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
-    // adding ground platform to the game
+    // adding ground platform to the game | original ground.png size: 500px * 10px
     platforms = this.physics.add.staticGroup();
-    platforms.create(1000, 380, 'ground').setScale(4, 1).refreshBody();
+    platforms.create(16700, 380, 'ground').setScale(66.8, 1).refreshBody();
     // platform to stop block from falling at the end
-    platforms.create(2000, 335, 'ground').setScale(0.002, 10).refreshBody();
+    platforms.create(33405, 335, 'ground').setScale(0.002, 10).refreshBody();
+
+    // adding obstacles. block "dies" when hitting obstacles
+    obstacles =  this.physics.add.staticGroup();
+    obstacles.create(800 , 370, 'obstacle');
 
     // adding player character to the game and physics
     player = this.physics.add.sprite(400, 350, 'block');
@@ -70,10 +87,10 @@ function create ()
     cursors = this.input.keyboard.createCursorKeys();
 
     //  pauseButton
-    pauseText = this.add.text(680, 16, 'Pause', {fontSize: '2rem', fill: '#fff'}, pauseGame);
+    pauseText = this.add.text(680, 16, 'Pause', {fontSize: '2rem', fill: '#fff'});
 
     // camera following character
-    this.cameras.main.startFollow(player, false, 1, 0, 0, 150);
+    this.cameras.main.startFollow(player, false, 1, 0, -175  , 150);
 }
 
 function update ()
@@ -87,7 +104,10 @@ function update ()
         player.setVelocityY(-330);
     }
 
+    // set player movement
     player.setVelocityX(200);
+    // sets position from pauseText relative to player Character
+    pauseText.x = player.x + 450;
 
     // make camera follow player
     // lerpY: 0; doesn't follow jumps // offsetY: 100; fixes position
@@ -99,19 +119,26 @@ function update ()
     }*/
 
     // TODO fix esc pause
-    /*if(esc.isDown) {
+    if(esc.isDown) {
         pauseGame();
-    }*/
+    }
 }
 
 function pauseGame() {
     if (this.gamePaused) {
+        // resumes music
+        backgroundMusic.resume();
         this.gamePaused = false;
         pauseText.setText('Pause');
+        // resumes scene
         game.scene.resume('default');
+
     } else {
+        // pauses music
+        backgroundMusic.pause();
         this.gamePaused = true;
         pauseText.setText('Resume');
+        // pauses scene
         game.scene.pause('default');
     }
 }
