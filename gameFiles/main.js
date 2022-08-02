@@ -23,12 +23,14 @@ let esc;
 let player;
 let platforms;
 let obstacles;
+let finishLine;
 let cursors;
+let pressedStart = false;
 let gameOver = false;
 let pauseText;
 let gamePaused = false;
 let backgroundMusic;
-let score = 0;
+let score = 1;
 let scoreText;
 
 const game = new Phaser.Game(config);
@@ -47,6 +49,9 @@ function preload ()
     this.load.image('ground', '../assets/ground.png');
     // background music
     this.load.audio('music', '../assets/Halvorsen - Wouldn\'t Change It [NCS Release].mp3');
+
+    // win Overlay
+    this.load.image('win', '../../assets/win.png');
 }
 
 function create ()
@@ -60,12 +65,14 @@ function create ()
     // adding ground platform to the game | original ground.png size: 500px * 10px
     platforms = this.physics.add.staticGroup();
     platforms.create(16700, 380, 'ground').setScale(66.8, 1).refreshBody();
-    // platform to stop block from falling at the end
-    platforms.create(33405, 335, 'ground').setScale(0.002, 10).refreshBody();
 
     // adding obstacles. block "dies" when hitting obstacles
     obstacles =  this.physics.add.staticGroup();
     obstacles.create(800 , 370, 'obstacle');
+
+    // adding block for win condition
+    finishLine = this.physics.add.staticGroup();
+    finishLine.create(33405, 335, 'ground').setScale(0.002, 10).refreshBody();
 
     // adding player character to the game and physics
     player = this.physics.add.sprite(400, 350, 'block');
@@ -93,7 +100,7 @@ function create ()
 
     //  pauseButton + score
     pauseText = this.add.text(680, 16, 'Pause', {fontSize: '2rem', fill: '#fff'});
-    scoreText = this.add.text(16, 16, 'Versuch 0', {fontSize: '2rem', fill: '#fff'});
+    scoreText = this.add.text(16, 16, 'Versuch ' + score, {fontSize: '2rem', fill: '#fff'});
 
     // camera following character
     this.cameras.main.startFollow(player, false, 1, 0, -175  , 150);
@@ -101,7 +108,7 @@ function create ()
 
 function update ()
 {
-    if(gameOver) {
+    if(gameOver || pressedStart) {
         return;
     }
 
@@ -154,5 +161,8 @@ function pauseGame() {
 function die() {
     score++;
     scoreText.setText('Versuch ' + score);
-    window.alert("game over");
+    backgroundMusic.stop();
+    backgroundMusic.play();
+    player.x = 400;
+    player.y = 350;
 }
