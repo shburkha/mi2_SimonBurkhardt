@@ -9,11 +9,12 @@ const config = {
             debug: false
         }
     },
-    scene: {
+    /*scene: {
         preload: preload,
         create: create,
         update: update
-    }
+    }*/
+    scene: [ Script, PauseScene ]
 };
 
 // TODO multiple scenes (start, play, pause)
@@ -22,6 +23,7 @@ const config = {
 // escape button
 let esc;
 //images / objects
+let backImg;
 let startOverlay;
 let pauseOverlay;
 let player;
@@ -39,7 +41,7 @@ let gamePaused = false;
 let score = 1;
 // text
 let scoreText;
-let pauseText;
+let pauseButton;
 
 const game = new Phaser.Game(config);
 
@@ -55,11 +57,15 @@ function preload ()
     this.load.image('obstacle', '../assets/obstacle.png');
     // loading player character
     this.load.image('ground', '../assets/ground.png');
+    // background image
+    this.load.image('back', '../assets/neon.jpg');
     // background music
     this.load.audio('music', '../assets/Halvorsen - Wouldn\'t Change It [NCS Release].mp3');
 
     // start Overlay
     this.load.image('start', '../../assets/start.png');
+    // pause Button
+    this.load.image('pauseButton', '../../assets/pauseButton.png');
     // pause Overlay
     this.load.image('pause', '../../assets/pause.png');
     // win Overlay
@@ -68,8 +74,11 @@ function preload ()
 
 function create ()
 {
+    // music
     backgroundMusic = this.sound.add('music');
-    backgroundMusic.play();
+    // background image
+    backImg = this.physics.add.staticGroup();
+    backImg.create(17000, 0, 'back').setScale(9, 0.3).refreshBody();
 
     // adding esc as a key
     esc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
@@ -112,8 +121,10 @@ function create ()
     cursors = this.input.keyboard.createCursorKeys();
 
     //  pauseButton + score
-    pauseText = this.add.text(680, 16, 'Pause', {fontSize: '2rem', fill: '#fff'});
-    scoreText = this.add.text(16, 16, 'Versuch ' + score, {fontSize: '2rem', fill: '#fff'});
+    // pauseButton = this.add.text(680, 16, 'Pause', {fontSize: '2rem', fill: '#fff'});
+    pauseButton = this.add.image(680, 16, 'pauseButton');
+    pauseButton.setOrigin(0);
+    scoreText = this.add.text(16, 16, 'Attempt ' + score, {fontSize: '2.5rem', fill: '#fff'});
 
     // camera following character
     this.cameras.main.startFollow(player, false, 1, 0, -175  , 150);
@@ -123,8 +134,9 @@ function create ()
     startOverlay.setInteractive();
 
     // add pause overlay
-    startOverlay = this.add.image((player.x + 175), 200, 'pause');
-    startOverlay.visible = false;
+    pauseOverlay = this.add.image((player.x + 175), 200, 'pause');
+    pauseOverlay.visible = false;
+    pauseOverlay.setInteractive();
 }
 
 function update ()
@@ -133,9 +145,9 @@ function update ()
         return;
     }else if(!pressedStart){
         startOverlay.on('pointerdown', function (pointer){
-            console.log('pointerdown');
             startOverlay.visible = false;
             pressedStart = true;
+            backgroundMusic.play();
         });
         return;
     }
@@ -147,19 +159,20 @@ function update ()
 
     // set player movement
     player.setVelocityX(200);
-    console.log(player.x + 175);
+    // console.log(player.x + 175);
     // sets position from pauseButton and score relative to player Character
-    pauseText.x = player.x + 450;
+    pauseButton.x = player.x + 450;
     scoreText.x = player.x - 200;
 
-    // make camera follow player
-    // lerpY: 0; doesn't follow jumps // offsetY: 100; fixes position
-    // make transition smooth
-    /*if(player.x > 200) {
-        console.log("playerX: " + player.x);
-        // TODO fix offsetY
-        this.cameras.main.startFollow(player, false, 1, 0, 0, 150);
-    }*/
+    pauseOverlay.on('pointerdown', function (pointer) {
+        console.log('unpause');
+        pauseGame();
+    });
+
+    startOverlay.on('pointerdown', function (pointer) {
+        console.log('start overlay');
+        pauseGame();
+    });
 
     // TODO fix esc pause
     /*if(esc.isDown) {
@@ -172,17 +185,17 @@ function pauseGame() {
         // resumes music
         backgroundMusic.resume();
         this.gamePaused = false;
-        pauseText.setText('Pause');
         // resumes scene
         game.scene.resume('default');
-
+        pauseOverlay.visible = false;
     } else {
         // pauses music
         backgroundMusic.pause();
         this.gamePaused = true;
-        pauseText.setText('Resume');
         // pauses scene
         game.scene.pause('default');
+        pauseOverlay.x = player.x + 175;
+        pauseOverlay.visible = true;
     }
 }
 
