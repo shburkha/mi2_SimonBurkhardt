@@ -9,12 +9,11 @@ const config = {
             debug: false
         }
     },
-    /*scene: {
+    scene: {
         preload: preload,
         create: create,
         update: update
-    }*/
-    scene: [ Script, PauseScene ]
+    }
 };
 
 // TODO multiple scenes (start, play, pause)
@@ -41,7 +40,6 @@ let gamePaused = false;
 let score = 1;
 // text
 let scoreText;
-let pauseButton;
 
 const game = new Phaser.Game(config);
 
@@ -64,8 +62,6 @@ function preload ()
 
     // start Overlay
     this.load.image('start', '../../assets/start.png');
-    // pause Button
-    this.load.image('pauseButton', '../../assets/pauseButton.png');
     // pause Overlay
     this.load.image('pause', '../../assets/pause.png');
     // win Overlay
@@ -120,10 +116,7 @@ function create ()
     // input
     cursors = this.input.keyboard.createCursorKeys();
 
-    //  pauseButton + score
-    // pauseButton = this.add.text(680, 16, 'Pause', {fontSize: '2rem', fill: '#fff'});
-    pauseButton = this.add.image(680, 16, 'pauseButton');
-    pauseButton.setOrigin(0);
+    // score
     scoreText = this.add.text(16, 16, 'Attempt ' + score, {fontSize: '2.5rem', fill: '#fff'});
 
     // camera following character
@@ -145,6 +138,8 @@ function update ()
         return;
     }else if(!pressedStart){
         startOverlay.on('pointerdown', function (pointer){
+            // shows pause Button
+            document.getElementById('pauseButton').style.display = 'block';
             startOverlay.visible = false;
             pressedStart = true;
             backgroundMusic.play();
@@ -160,8 +155,7 @@ function update ()
     // set player movement
     player.setVelocityX(200);
     // console.log(player.x + 175);
-    // sets position from pauseButton and score relative to player Character
-    pauseButton.x = player.x + 450;
+    // sets position from score relative to player Character
     scoreText.x = player.x - 200;
 
     pauseOverlay.on('pointerdown', function (pointer) {
@@ -188,6 +182,10 @@ function pauseGame() {
         // resumes scene
         game.scene.resume('default');
         pauseOverlay.visible = false;
+        // reveals pause button
+        document.getElementById('pauseButton').style.display = 'block';
+        // hides unpause
+        document.getElementById('unpause').style.display = 'none';
     } else {
         // pauses music
         backgroundMusic.pause();
@@ -196,6 +194,10 @@ function pauseGame() {
         game.scene.pause('default');
         pauseOverlay.x = player.x + 175;
         pauseOverlay.visible = true;
+        // hides pause button
+        document.getElementById('pauseButton').style.display = 'none';
+        // reveals unpause
+        document.getElementById('unpause').style.display = 'block';
     }
 }
 
