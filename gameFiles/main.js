@@ -19,19 +19,27 @@ const config = {
 // TODO multiple scenes (start, play, pause)
 // TODO add obstacles
 
+// escape button
 let esc;
+//images / objects
+let startOverlay;
+let pauseOverlay;
 let player;
 let platforms;
 let obstacles;
 let finishLine;
 let cursors;
+// audio file
+let backgroundMusic;
+// booleans
 let pressedStart = false;
 let gameOver = false;
-let pauseText;
 let gamePaused = false;
-let backgroundMusic;
+// attempt counter
 let score = 1;
+// text
 let scoreText;
+let pauseText;
 
 const game = new Phaser.Game(config);
 
@@ -50,6 +58,10 @@ function preload ()
     // background music
     this.load.audio('music', '../assets/Halvorsen - Wouldn\'t Change It [NCS Release].mp3');
 
+    // start Overlay
+    this.load.image('start', '../../assets/start.png');
+    // pause Overlay
+    this.load.image('pause', '../../assets/pause.png');
     // win Overlay
     this.load.image('win', '../../assets/win.png');
 }
@@ -86,6 +98,7 @@ function create ()
     // collider
     this.physics.add.collider(player, platforms);
     this.physics.add.collider(player, obstacles, die, null, this);
+    this.physics.add.collider(player, finishLine, win, null, this);
 
     // player block animations
     this.anims.create({
@@ -104,11 +117,26 @@ function create ()
 
     // camera following character
     this.cameras.main.startFollow(player, false, 1, 0, -175  , 150);
+
+    // add start overlay
+    startOverlay = this.add.image(575, 200, 'start');
+    startOverlay.setInteractive();
+
+    // add pause overlay
+    startOverlay = this.add.image((player.x + 175), 200, 'pause');
+    startOverlay.visible = false;
 }
 
 function update ()
 {
-    if(gameOver || pressedStart) {
+    if(gameOver) {
+        return;
+    }else if(!pressedStart){
+        startOverlay.on('pointerdown', function (pointer){
+            console.log('pointerdown');
+            startOverlay.visible = false;
+            pressedStart = true;
+        });
         return;
     }
 
@@ -119,7 +147,7 @@ function update ()
 
     // set player movement
     player.setVelocityX(200);
-    console.log(player.x);
+    console.log(player.x + 175);
     // sets position from pauseButton and score relative to player Character
     pauseText.x = player.x + 450;
     scoreText.x = player.x - 200;
@@ -162,7 +190,19 @@ function die() {
     score++;
     scoreText.setText('Versuch ' + score);
     backgroundMusic.stop();
-    backgroundMusic.play();
-    player.x = 400;
-    player.y = 350;
+    player.setTint(0xff0000);
+    game.scene.pause('default');
+    setTimeout(() => {
+        player.clearTint();
+        backgroundMusic.play();
+        player.x = 400;
+        player.y = 350;
+        game.scene.resume('default');
+    }, 500);
+}
+
+function win() {
+    this.add.image(33554.5, 200, 'win');
+    game.scene.pause('default');
+    backgroundMusic.stop();
 }
