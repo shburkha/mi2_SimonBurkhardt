@@ -16,7 +16,6 @@ const config = {
     }
 };
 
-// TODO multiple scenes (start, play, pause)
 // TODO add obstacles
 
 // escape button
@@ -117,7 +116,7 @@ function create ()
     cursors = this.input.keyboard.createCursorKeys();
 
     // score
-    scoreText = this.add.text(16, 16, 'Attempt ' + score, {fontSize: '2.5rem', fill: '#fff'});
+    scoreText = this.add.text(16, 16, 'Attempt ' + score, {fontSize: '2.5rem', fill: '#ff5200', backgroundColor: '#1c1b22'});
 
     // camera following character
     this.cameras.main.startFollow(player, false, 1, 0, -175  , 150);
@@ -168,10 +167,6 @@ function update ()
         pauseGame();
     });
 
-    // TODO fix esc pause
-    /*if(esc.isDown) {
-        pauseGame();
-    }*/
 }
 
 function pauseGame() {
@@ -203,7 +198,7 @@ function pauseGame() {
 
 function die() {
     score++;
-    scoreText.setText('Versuch ' + score);
+    scoreText.setText('Attempt ' + score);
     backgroundMusic.stop();
     player.setTint(0xff0000);
     game.scene.pause('default');
