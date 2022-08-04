@@ -149,7 +149,7 @@ function update ()
     // enables player jump on space bar or arrow key up
     // the player is only allowed to jump when touching the ground and the game isn't pause or waiting on respawn
     if((cursors.up.isDown || cursors.space.isDown) && player.body.touching.down && !gamePaused && !waitRespawn) {
-        // plays jump animatino
+        // plays jump animation
         player.anims.play('jump');
         // jumps
         player.setVelocityY(-330);
@@ -218,6 +218,8 @@ function win() {
     // shows winOverlay
     // this.add.image(33554.5, 200, 'win');
     this.add.image(10135, 200, 'win');
+    // hide pause button
+    document.getElementById('pauseButton').style.display = 'none';
     // stops scene and music
     game.scene.pause('default');
     backgroundMusic.stop();
