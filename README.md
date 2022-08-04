@@ -10,4 +10,4 @@ I used an image from a copy-right free site for the background (https://www.pexe
 all the other images were created in Adobe Illustrator. You can find the Illustrator file in the assets folder.
 
 ## Installation
-Phaser3 requires you to run the game on a local web server. While developing this game I used the build-in server from Webstorm.
+Phaser3 requires you to run the game on a local web server. Start the index.html thats inside of the "gameFiles" Folder on that server. While developing this game I used the build-in server from Webstorm.
