@@ -16,10 +16,6 @@ const config = {
     }
 };
 
-// TODO add obstacles
-
-// escape button
-let esc;
 //images / objects
 let backImg;
 let startOverlay;
@@ -44,11 +40,8 @@ const game = new Phaser.Game(config);
 
 function preload ()
 {
-    // loading ground
-    // v1
+    // loading player
     this.load.spritesheet('block', '../assets/block.png', {frameWidth: 50, frameHeight: 50});
-    // this.load.spritesheet('blockv2', '../assets/blockv2.png', {frameWidth: 50, frameHeight: 50}); // v2
-
 
     // loading obstacles
     this.load.image('obstacle', '../assets/obstacle.png');
@@ -75,9 +68,6 @@ function create ()
     backImg = this.physics.add.staticGroup();
     backImg.create(17000, 0, 'back').setScale(9, 0.3).refreshBody();
 
-    // adding esc as a key
-    esc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-
     // adding ground platform to the game | original ground.png size: 500px * 10px
     platforms = this.physics.add.staticGroup();
     platforms.create(16700, 380, 'ground').setScale(66.8, 1).refreshBody();
@@ -92,12 +82,9 @@ function create ()
 
     // adding player character to the game and physics
     player = this.physics.add.sprite(400, 350, 'block');
-    // player = this.physics.add.sprite(400, 350, 'blockv2'); //v2
 
     // player gravity
     player.body.setGravityY(300);
-    // player collider with world bounds and ground
-    // player.setCollideWorldBounds(true);
 
     // collider
     this.physics.add.collider(player, platforms);
@@ -133,40 +120,35 @@ function create ()
 
 function update ()
 {
+    // checks for game over
     if(gameOver) {
         return;
-    }else if(!pressedStart){
+    }
+    // checks if game has actually started
+    else if(!pressedStart){
         startOverlay.on('pointerdown', function (pointer){
             // shows pause Button
             document.getElementById('pauseButton').style.display = 'block';
             startOverlay.visible = false;
             pressedStart = true;
+            // starts background music
             backgroundMusic.play();
         });
         return;
     }
 
+    // enables player jump on space bar or arrow key up
     if((cursors.up.isDown || cursors.space.isDown) && player.body.touching.down) {
+        // plays jump animatino
         player.anims.play('jump');
+        // jumps
         player.setVelocityY(-330);
     }
 
     // set player movement
     player.setVelocityX(200);
-    // console.log(player.x + 175);
     // sets position from score relative to player Character
     scoreText.x = player.x - 200;
-
-    pauseOverlay.on('pointerdown', function (pointer) {
-        console.log('unpause');
-        pauseGame();
-    });
-
-    startOverlay.on('pointerdown', function (pointer) {
-        console.log('start overlay');
-        pauseGame();
-    });
-
 }
 
 function pauseGame() {
@@ -187,8 +169,9 @@ function pauseGame() {
         this.gamePaused = true;
         // pauses scene
         game.scene.pause('default');
-        pauseOverlay.x = player.x + 175;
+        // enables pauseOverlay
         pauseOverlay.visible = true;
+        pauseOverlay.x = player.x + 175;
         // hides pause button
         document.getElementById('pauseButton').style.display = 'none';
         // reveals unpause
@@ -197,11 +180,17 @@ function pauseGame() {
 }
 
 function die() {
+    // increments attempt counter
     score++;
     scoreText.setText('Attempt ' + score);
+    // stops music
     backgroundMusic.stop();
+    // gives player character a visual that it has been hit
     player.setTint(0xff0000);
+    // pauses scene
     game.scene.pause('default');
+    /* after half a second delay resumes the scene & music and
+    sets player back to start*/
     setTimeout(() => {
         player.clearTint();
         backgroundMusic.play();
@@ -212,7 +201,9 @@ function die() {
 }
 
 function win() {
+    // shows winOverlay
     this.add.image(33554.5, 200, 'win');
+    // stops scene and music
     game.scene.pause('default');
     backgroundMusic.stop();
 }
