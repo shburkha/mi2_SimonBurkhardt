@@ -28,9 +28,11 @@ let cursors;
 // audio file
 let backgroundMusic;
 // booleans
-let pressedStart = false;
+let pressedStart = true; //TODO revert to false
 let gameOver = false;
 let gamePaused = false;
+// stops you from pausing during respawn delay
+let waitRespawn = false;
 // attempt counter
 let score = 1;
 // text
@@ -47,10 +49,12 @@ function preload ()
     this.load.image('obstacle', '../assets/obstacle.png');
     // loading player character
     this.load.image('ground', '../assets/ground.png');
+    //finish Line
+    this.load.image('finish', '../assets/finishLine.png');
     // background image
     this.load.image('back', '../assets/neon.jpg');
     // background music
-    this.load.audio('music', '../assets/Halvorsen - Wouldn\'t Change It [NCS Release].mp3');
+    this.load.audio('music', '../assets/DEAF KEV - Invincible [NCS Release].mp3');
 
     // start Overlay
     this.load.image('start', '../../assets/start.png');
@@ -70,18 +74,24 @@ function create ()
 
     // adding ground platform to the game | original ground.png size: 500px * 10px
     platforms = this.physics.add.staticGroup();
+    // ground
     platforms.create(16700, 380, 'ground').setScale(66.8, 1).refreshBody();
+    // calls function addPlatforms. this is for more readable code
+    addPlatforms();
 
     // adding obstacles. block "dies" when hitting obstacles
     obstacles =  this.physics.add.staticGroup();
-    obstacles.create(800 , 370, 'obstacle');
+    // calls function addObstacles. this is for more readable code
+    addObstacles();
 
     // adding block for win condition
     finishLine = this.physics.add.staticGroup();
-    finishLine.create(33405, 335, 'ground').setScale(0.002, 10).refreshBody();
+    // finishLine.create(33405, 335, 'ground').setScale(0.002, 10).refreshBody();
+    finishLine.create(10000, 200, 'finish');
 
     // adding player character to the game and physics
-    player = this.physics.add.sprite(400, 350, 'block');
+    //player = this.physics.add.sprite(400, 350, 'block');
+    player = this.physics.add.sprite(6700, 350, 'block'); //for testing only TODO change
 
     // player gravity
     player.body.setGravityY(300);
@@ -138,7 +148,8 @@ function update ()
     }
 
     // enables player jump on space bar or arrow key up
-    if((cursors.up.isDown || cursors.space.isDown) && player.body.touching.down) {
+    // the player is only allowed to jump when touching the ground and the game isn't pause or waiting on respawn
+    if((cursors.up.isDown || cursors.space.isDown) && player.body.touching.down && !gamePaused && !waitRespawn) {
         // plays jump animatino
         player.anims.play('jump');
         // jumps
@@ -147,12 +158,14 @@ function update ()
 
     // set player movement
     player.setVelocityX(200);
+    // log player current position
+    console.log(player.x);
     // sets position from score relative to player Character
     scoreText.x = player.x - 200;
 }
 
 function pauseGame() {
-    if (this.gamePaused) {
+    if (this.gamePaused && !waitRespawn) {
         // resumes music
         backgroundMusic.resume();
         this.gamePaused = false;
@@ -163,7 +176,7 @@ function pauseGame() {
         document.getElementById('pauseButton').style.display = 'block';
         // hides unpause
         document.getElementById('unpause').style.display = 'none';
-    } else {
+    } else if (!this.gamePaused && !waitRespawn){
         // pauses music
         backgroundMusic.pause();
         this.gamePaused = true;
@@ -189,6 +202,7 @@ function die() {
     player.setTint(0xff0000);
     // pauses scene
     game.scene.pause('default');
+    waitRespawn = true;
     /* after half a second delay resumes the scene & music and
     sets player back to start*/
     setTimeout(() => {
@@ -197,13 +211,62 @@ function die() {
         player.x = 400;
         player.y = 350;
         game.scene.resume('default');
+        waitRespawn = false;
     }, 500);
 }
 
 function win() {
     // shows winOverlay
-    this.add.image(33554.5, 200, 'win');
+    // this.add.image(33554.5, 200, 'win');
+    this.add.image(10135, 200, 'win');
     // stops scene and music
     game.scene.pause('default');
     backgroundMusic.stop();
+}
+
+function addPlatforms(){
+    // original ground.png size: 500px * 10px
+    //first stairs (end: 3150)
+    platforms.create(1700, 300, 'ground').setScale(0.2, 1).refreshBody();
+    platforms.create(1900, 250, 'ground').setScale(0.2, 1).refreshBody();
+    platforms.create(2100, 200, 'ground').setScale(0.2, 1).refreshBody();
+    platforms.create(2500, 150, 'ground');
+    platforms.create(2850, 200, 'ground').setScale(0.2, 1).refreshBody();
+
+    // second stairs
+    platforms.create(7000, 300, 'ground').setScale(0.2, 1).refreshBody();
+    platforms.create(7200, 250, 'ground').setScale(0.2, 1).refreshBody();
+    platforms.create(7400, 200, 'ground').setScale(0.2, 1).refreshBody();
+    platforms.create(7800, 150, 'ground');
+    platforms.create(8150, 200, 'ground').setScale(0.2, 1).refreshBody();
+}
+
+function addObstacles() {
+    // original ground.png size: 100px * 10px
+    // first obstacle
+    obstacles.create(1300, 370, 'obstacle').setScale(1.3, 1).refreshBody();
+
+    // first stairs (end: 3150)
+    obstacles.create(2400 , 379, 'obstacle').setScale(15, 1).refreshBody();
+
+    // row of obstacles
+    obstacles.create(3400, 370, 'obstacle').setScale(.5, 1).refreshBody();
+    obstacles.create(3600, 370, 'obstacle').setScale(.75, 1).refreshBody();
+    obstacles.create(3800, 370, 'obstacle').setScale(1, 1).refreshBody();
+    obstacles.create(4100, 370, 'obstacle').setScale(1.25, 1).refreshBody();
+    obstacles.create(4400, 370, 'obstacle').setScale(1.25, 1).refreshBody();
+    obstacles.create(4700, 370, 'obstacle').setScale(1.25, 1).refreshBody();
+
+    // first set of higher obstacles
+    obstacles.create(5400, 365, 'obstacle').setScale(.5, 2).refreshBody();
+    obstacles.create(5600, 365, 'obstacle').setScale(.75, 2).refreshBody();
+    obstacles.create(5800, 365, 'obstacle').setScale(1, 2).refreshBody();
+    obstacles.create(6100, 365, 'obstacle').setScale(1.25, 2).refreshBody();
+    obstacles.create(6400, 365, 'obstacle').setScale(1.25, 2).refreshBody();
+
+    // second stairs
+    obstacles.create(8075, 379, 'obstacle').setScale(22.5, 1).refreshBody();
+
+    // last obstacle
+    obstacles.create(9500, 352.5, 'obstacle').setScale(1, 4.5).refreshBody();
 }
