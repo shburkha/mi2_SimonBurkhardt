@@ -28,7 +28,7 @@ let cursors;
 // audio file
 let backgroundMusic;
 // booleans
-let pressedStart = true; //TODO revert to false
+let pressedStart = false;
 let gameOver = false;
 let gamePaused = false;
 // stops you from pausing during respawn delay
@@ -90,8 +90,7 @@ function create ()
     finishLine.create(10000, 200, 'finish');
 
     // adding player character to the game and physics
-    //player = this.physics.add.sprite(400, 350, 'block');
-    player = this.physics.add.sprite(6700, 350, 'block'); //for testing only TODO change
+    player = this.physics.add.sprite(400, 350, 'block');
 
     // player gravity
     player.body.setGravityY(300);
@@ -236,9 +235,11 @@ function addPlatforms(){
     // second stairs
     platforms.create(7000, 300, 'ground').setScale(0.2, 1).refreshBody();
     platforms.create(7200, 250, 'ground').setScale(0.2, 1).refreshBody();
-    platforms.create(7400, 200, 'ground').setScale(0.2, 1).refreshBody();
-    platforms.create(7800, 150, 'ground');
-    platforms.create(8150, 200, 'ground').setScale(0.2, 1).refreshBody();
+    platforms.create(7550, 300, 'ground').setScale(0.2, 1).refreshBody();
+    platforms.create(8000, 210, 'ground');
+    platforms.create(8600, 350, 'ground').setScale(0.2, 1).refreshBody();
+    platforms.create(8800, 300, 'ground').setScale(0.05, 1).refreshBody();
+    platforms.create(9050, 300, 'ground').setScale(0.05, 1).refreshBody();
 }
 
 function addObstacles() {
